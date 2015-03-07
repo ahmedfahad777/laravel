@@ -6,6 +6,7 @@ Route::get('voters/create1', 'VotersController@create1');
 
 Route::get('voters/create2', 'VotersController@create2');
 
+Route::get('voters/create3', 'VotersController@create3');
 
 
 

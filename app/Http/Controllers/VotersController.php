@@ -33,6 +33,10 @@ class VotersController extends Controller {
 		return view ('voters/create2');
 	}
 
+    public function create3()
+    {
+        return view ('voters/create3');
+    }
 	/**
 	 * Store a newly created resource in storage.
 	 *
