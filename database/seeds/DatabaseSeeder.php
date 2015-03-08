@@ -3,7 +3,6 @@
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Model;
 
-
 class DatabaseSeeder extends Seeder {
 
     /**
@@ -15,9 +14,8 @@ class DatabaseSeeder extends Seeder {
     {
         Model::unguard();
 
-        $this->call('ProjectsTableSeeder');
-        $this->call('TasksTableSeeder');
-        $this->call('NewtimelinesTableSeeder');
-        $this->call('PostsTableSeeder');
+        $this->call('VotersTableSeeder');
+        $this->call('CandidatesTableSeeder');
     }
+
 }
