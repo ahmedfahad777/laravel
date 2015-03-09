@@ -28,9 +28,6 @@ class NormalizerFormatterTest extends \PHPUnit_Framework_TestCase
             'context' => array(
                 'foo' => 'bar',
                 'baz' => 'qux',
-                'inf' => INF,
-                '-inf' => -INF,
-                'nan' => acos(4),
             ),
         ));
 
@@ -48,9 +45,6 @@ class NormalizerFormatterTest extends \PHPUnit_Framework_TestCase
             'context' => array(
                 'foo' => 'bar',
                 'baz' => 'qux',
-                'inf' => 'INF',
-                '-inf' => '-INF',
-                'nan' => 'NaN',
             )
         ), $formatted);
     }

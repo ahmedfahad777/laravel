@@ -1,9 +1,11 @@
 @extends('voting')
 
 @section('content')
-    <h1 style="text-align: center">Cast Your Vote</h1>
+    <h1 class="text-center">Cast Your Vote</h1>
 
     {!! Form::open(array('url' => 'castVote')) !!}
+    {{--{!! Form::model($inbox, array('route' => array('inboxes.update', $inbox->id), 'method' => 'PUT')) !!}--}}
+    {{--{!! Form::model (($voter,$candidate), array('route' => array('castVote.update', ($voter->id, $candidate->id), 'method' => 'PUT')) !!}--}}
 
     <div class="form-group col-md-6 col-md-offset-3">
         <div class="col-md-3">

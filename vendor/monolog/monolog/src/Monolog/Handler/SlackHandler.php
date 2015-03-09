@@ -53,16 +53,16 @@ class SlackHandler extends SocketHandler
     private $useAttachment;
 
     /**
-     * Whether the the context/extra messages added to Slack as attachments are in a short style
+     * Whether the the message that is added to Slack as attachment is in a short style (or not)
      * @var bool
      */
     private $useShortAttachment;
 
     /**
-     * Whether the attachment should include context and extra data
+     * Whether the attachment should include extra data (or not)
      * @var bool
      */
-    private $includeContextAndExtra;
+    private $includeExtra;
 
     /**
      * @var LineFormatter
@@ -70,17 +70,15 @@ class SlackHandler extends SocketHandler
     private $lineFormatter;
 
     /**
-     * @param string      $token                  Slack API token
-     * @param string      $channel                Slack channel (encoded ID or name)
-     * @param string      $username               Name of a bot
-     * @param bool        $useAttachment          Whether the message should be added to Slack as attachment (plain text otherwise)
-     * @param string|null $iconEmoji              The emoji name to use (or null)
-     * @param int         $level                  The minimum logging level at which this handler will be triggered
-     * @param bool        $bubble                 Whether the messages that are handled can bubble up the stack or not
-     * @param bool        $useShortAttachment     Whether the the context/extra messages added to Slack as attachments are in a short style
-     * @param bool        $includeContextAndExtra Whether the attachment should include context and extra data
+     * @param string      $token         Slack API token
+     * @param string      $channel       Slack channel (encoded ID or name)
+     * @param string      $username      Name of a bot
+     * @param bool        $useAttachment Whether the message should be added to Slack as attachment (plain text otherwise)
+     * @param string|null $iconEmoji     The emoji name to use (or null)
+     * @param int         $level         The minimum logging level at which this handler will be triggered
+     * @param bool        $bubble        Whether the messages that are handled can bubble up the stack or not
      */
-    public function __construct($token, $channel, $username = 'Monolog', $useAttachment = true, $iconEmoji = null, $level = Logger::CRITICAL, $bubble = true, $useShortAttachment = false, $includeContextAndExtra = false)
+    public function __construct($token, $channel, $username = 'Monolog', $useAttachment = true, $iconEmoji = null, $level = Logger::CRITICAL, $bubble = true, $useShortAttachment = false, $includeExtra = false)
     {
         if (!extension_loaded('openssl')) {
             throw new MissingExtensionException('The OpenSSL PHP extension is required to use the SlackHandler');
@@ -94,8 +92,8 @@ class SlackHandler extends SocketHandler
         $this->iconEmoji = trim($iconEmoji, ':');
         $this->useAttachment = $useAttachment;
         $this->useShortAttachment = $useShortAttachment;
-        $this->includeContextAndExtra = $includeContextAndExtra;
-        if ($this->includeContextAndExtra) {
+        $this->includeExtra = $includeExtra;
+        if ($this->includeExtra) {
             $this->lineFormatter = new LineFormatter;
         }
     }
@@ -158,44 +156,19 @@ class SlackHandler extends SocketHandler
                 );
             }
 
-            if ($this->includeContextAndExtra) {
-                if (!empty($record['extra'])) {
-                    if ($this->useShortAttachment) {
-                        $attachment['fields'][] = array(
-                            'title' => "Extra",
-                            'value' => $this->stringify($record['extra']),
-                            'short' => $this->useShortAttachment
-                        );
-                    } else {
-                        // Add all extra fields as individual fields in attachment
-                        foreach ($record['extra'] as $var => $val) {
-                            $attachment['fields'][] = array(
-                                'title' => $var,
-                                'value' => $val,
-                                'short' => $this->useShortAttachment
-                           );
-                        }
-                    }
+            if ($this->includeExtra) {
+                $extra = '';
+                foreach ($record['extra'] as $var => $val) {
+                    $extra .= $var.': '.$this->lineFormatter->stringify($val)." | ";
                 }
 
-                if (!empty($record['context'])) {
-                    if ($this->useShortAttachment) {
-                        $attachment['fields'][] = array(
-                            'title' => "Context",
-                            'value' => $this->stringify($record['context']),
-                            'short' => $this->useShortAttachment
-                        );
-                    } else {
-                        // Add all context fields as individual fields in attachment
-                        foreach ($record['context'] as $var => $val) {
-                            $attachment['fields'][] = array(
-                                'title' => $var,
-                                'value' => $val,
-                                'short' => $this->useShortAttachment
-                           );
-                        }
-                    }
-                }
+                $extra = rtrim($extra, " |");
+
+                $attachment['fields'][] = array(
+                    'title' => "Extra",
+                    'value' => $extra,
+                    'short' => false
+                );
             }
 
             $dataArray['attachments'] = json_encode(array($attachment));
@@ -257,24 +230,5 @@ class SlackHandler extends SocketHandler
             default:
                 return '#e3e4e6';
         }
-    }
-
-    /**
-     * Stringifys an array of key/value pairs to be used in attachment fields
-     *
-     * @param array $fields
-     * @access protected
-     * @return string
-     */
-    protected function stringify($fields)
-    {
-        $string = '';
-        foreach ($fields as $var => $val) {
-            $string .= $var.': '.$this->lineFormatter->stringify($val)." | ";
-        }
-
-        $string = rtrim($string, " |");
-
-        return $string;
     }
 }

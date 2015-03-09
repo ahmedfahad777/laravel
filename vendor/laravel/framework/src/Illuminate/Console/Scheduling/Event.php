@@ -153,6 +153,8 @@ class Event {
 	 */
 	protected function callAfterCallbacks(Container $container)
 	{
+		if (empty($this->afterCallbacks)) return;
+
 		foreach ($this->afterCallbacks as $callback)
 		{
 			$container->call($callback);
@@ -179,7 +181,7 @@ class Event {
 	 */
 	public function isDue(Application $app)
 	{
-		if ( ! $this->runsInMaintenanceMode() && $app->isDownForMaintenance())
+		if ($app->isDownForMaintenance() && ! $this->runsInMaintenanceMode())
 		{
 			return false;
 		}
@@ -264,7 +266,9 @@ class Event {
 	 */
 	public function hourly()
 	{
-		return $this->cron('0 * * * * *');
+		$this->expression = '0 * * * * *';
+
+		return $this;
 	}
 
 	/**
@@ -274,7 +278,9 @@ class Event {
 	 */
 	public function daily()
 	{
-		return $this->cron('0 0 * * * *');
+		$this->expression = '0 0 * * * *';
+
+		return $this;
 	}
 
 	/**
@@ -309,7 +315,9 @@ class Event {
 	 */
 	public function twiceDaily()
 	{
-		return $this->cron('0 1,13 * * * *');
+		$this->expression = '0 1,13 * * * *';
+
+		return $this;
 	}
 
 	/**
@@ -399,7 +407,9 @@ class Event {
 	 */
 	public function weekly()
 	{
-		return $this->cron('0 0 * * 0 *');
+		$this->expression = '0 0 * * 0 *';
+
+		return $this;
 	}
 
 	/**
@@ -423,7 +433,9 @@ class Event {
 	 */
 	public function monthly()
 	{
-		return $this->cron('0 0 1 * * *');
+		$this->expression = '0 0 1 * * *';
+
+		return $this;
 	}
 
 	/**
@@ -433,7 +445,9 @@ class Event {
 	 */
 	public function yearly()
 	{
-		return $this->cron('0 0 1 1 * *');
+		$this->expression = '0 0 1 1 * *';
+
+		return $this;
 	}
 
 	/**
@@ -443,7 +457,9 @@ class Event {
 	 */
 	public function everyFiveMinutes()
 	{
-		return $this->cron('*/5 * * * * *');
+		$this->expression = '*/5 * * * * *';
+
+		return $this;
 	}
 
 	/**
@@ -453,7 +469,9 @@ class Event {
 	 */
 	public function everyTenMinutes()
 	{
-		return $this->cron('*/10 * * * * *');
+		$this->expression = '*/10 * * * * *';
+
+		return $this;
 	}
 
 	/**
@@ -463,7 +481,9 @@ class Event {
 	 */
 	public function everyThirtyMinutes()
 	{
-		return $this->cron('0,30 * * * * *');
+		$this->expression = '0,30 * * * * *';
+
+		return $this;
 	}
 
 	/**
@@ -474,9 +494,9 @@ class Event {
 	 */
 	public function days($days)
 	{
-		$days = is_array($days) ? $days : func_get_args();
+		$this->spliceIntoPosition(5, implode(',', is_array($days) ? $days : func_get_args()));
 
-		return $this->spliceIntoPosition(5, implode(',', $days));
+		return $this;
 	}
 
 	/**
@@ -584,11 +604,9 @@ class Event {
 			throw new LogicException("Must direct output to a file in order to e-mail results.");
 		}
 
-		$addresses = is_array($addresses) ? $addresses : func_get_args();
-
 		return $this->then(function(Mailer $mailer) use ($addresses)
 		{
-			$this->emailOutput($mailer, $addresses);
+			$this->emailOutput($mailer, is_array($addresses) ? $addresses : func_get_args());
 		});
 	}
 
@@ -677,7 +695,9 @@ class Event {
 
 		$segments[$position - 1] = $value;
 
-		return $this->cron(implode(' ', $segments));
+		$this->expression = implode(' ', $segments);
+
+		return $this;
 	}
 
 	/**

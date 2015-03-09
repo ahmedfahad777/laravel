@@ -6,4 +6,8 @@ class Candidate extends Model {
 
 	protected $guarded = [];
 
+    public function candidates()
+    {
+        return $this->hasMany('App\Candidate');
+    }
 }

@@ -120,9 +120,7 @@ class Kernel implements KernelContract {
 	 */
 	public function terminate($request, $response)
 	{
-		$routeMiddlewares = $this->gatherRouteMiddlewares($request);
-
-		foreach (array_merge($routeMiddlewares, $this->middleware) as $middleware)
+		foreach ($this->middleware as $middleware)
 		{
 			$instance = $this->app->make($middleware);
 
@@ -133,54 +131,6 @@ class Kernel implements KernelContract {
 		}
 
 		$this->app->terminate();
-	}
-
-	/**
-	 * Gather the route middleware for the given request.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @return array
-	 */
-	protected function gatherRouteMiddlewares($request)
-	{
-		if ($request->route())
-		{
-			return $this->router->gatherRouteMiddlewares($request->route());
-		}
-
-		return [];
-	}
-
-	/**
-	 * Add a new middleware to beginning of the stack if it does not already exist.
-	 *
-	 * @param  string  $middleware
-	 * @return $this
-	 */
-	public function prependMiddleware($middleware)
-	{
-		if (array_search($middleware, $this->middleware) === false)
-		{
-			array_unshift($this->middleware, $middleware);
-		}
-
-		return $this;
-	}
-
-	/**
-	 * Add a new middleware to end of the stack if it does not already exist.
-	 *
-	 * @param  string  $middleware
-	 * @return $this
-	 */
-	public function pushMiddleware($middleware)
-	{
-		if (array_search($middleware, $this->middleware) === false)
-		{
-			$this->middleware[] = $middleware;
-		}
-
-		return $this;
 	}
 
 	/**

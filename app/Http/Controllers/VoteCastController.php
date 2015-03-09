@@ -17,7 +17,8 @@ class VoteCastController extends Controller {
 	 */
 	public function index()
 	{
-		return view('votingsystem.index');
+        $candidates = Candidate::all();
+        return view('votingsystem.index', compact('candidates'));
 	}
 
 	/**
@@ -37,19 +38,29 @@ class VoteCastController extends Controller {
 	 */
 	public function store()
 	{
-        $symbol = $_POST['symbol'];
         $voterId = $_POST['voterId'];
+        $symbol = $_POST['symbol'];
+
+        /*var_dump($symbol);
+        var_dump($voterId);
+        die();*/
 //        dd($symbol);
 //        dd($voterId);
 
         $candidates = Candidate::all()->where('id',$symbol);
-        //dd($candidates);
+        //dd($candidates->find('cast'));
+        //dd(substr_count($candidates,'cast'));
+
+        //dd(array_key_exists('cast',$candidates));
+
         $voters = Voter::all()->where('voterId',$voterId);
+        dd($voters->count());
+        var_dump($voterId);
         dd($voters);
 
         if(isset($symbol) && isset($voterId)){
             if($voterId == $voters['voterId']){
-                
+
             }
         }
 	}
